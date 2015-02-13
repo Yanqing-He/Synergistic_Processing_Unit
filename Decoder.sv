@@ -1,5 +1,5 @@
 module Decoder(clk, reset, stallIn, instIn, stallOut, instOut, 
-opOutEven, raEvem, rbEven, rdEven, immeNumEven, immeSelEven,
+opOutEven, raEven, rbEven, rdEven, immeNumEven, immeSelEven,
 opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
 
   parameter addrWidth = 7, instWidth = 32;
@@ -83,13 +83,13 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
     else // normal condition
       begin // analyze op code
         // even pipe
-        if(isnt0[31: 26] == 6'd0)
+        if(inst0[31: 26] == 6'd0)
           begin
           end
-        if(isnt0[31: 26] == 6'd2)
+        if(inst0[31: 26] == 6'd2)
           begin
           end
-        if(isnt0[31: 26] == 6'd4) // add half word
+        if(inst0[31: 26] == 6'd4) // add half word
           begin
             opOutEven <= 6'd4;
             rdEven <= inst0[6: 0];
@@ -97,15 +97,15 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
             rbEven <= inst0[21: 8];
             immeNumEven <= 0;
           end
-        if(isnt0[31: 26] == 6'd6) // add half word immediate
+        if(inst0[31: 26] == 6'd6) // add half word immediate
           begin
             opOutEven <= 6'd6;
             rdEven <= inst0[6: 0];
             raEven <= inst0[13: 7];
             immeNumEven <= inst0[23: 14];
-            immeSelOut <= 1;
+            immeSelEven <= 1;
           end
-        if(isnt0[31: 26] == 6'd8) // add word
+        if(inst0[31: 26] == 6'd8) // add word
           begin
             opOutEven <= 6'd8;
             rdEven <= inst0[6: 0];
@@ -113,26 +113,26 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
             rbEven <= inst0[21: 8];
             immeNumEven <= 0;
           end
-        if(isnt0[31: 26] == 6'd10) // add word immediate
+        if(inst0[31: 26] == 6'd10) // add word immediate
           begin
             opOutEven <= 6'd10;
             rdEven <= inst0[6: 0];
             raEven <= inst0[13: 7];
             immeNumEven <= inst0[23: 14];
           end
-        if(isnt0[31: 26] == 6'd12)
+        if(inst0[31: 26] == 6'd12)
           begin
           end
-        if(isnt0[31: 26] == 6'd14)
+        if(inst0[31: 26] == 6'd14)
           begin
           end
-        if(isnt0[31: 26] == 6'd16)
+        if(inst0[31: 26] == 6'd16)
           begin
           end
-        if(isnt0[31: 26] == 6'd18)
+        if(inst0[31: 26] == 6'd18)
           begin
           end    
-        if(isnt0[31: 26] == 6'd20) // multiply word
+        if(inst0[31: 26] == 6'd20) // multiply word
           begin
             opOutEven <= 6'd20;
             rdEven <= inst0[6: 0];
@@ -142,95 +142,95 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
             stallCounter <= 1; // stall one cycle for multiplying
             stall <= 1;
           end    
-        if(isnt0[31: 26] == 6'd22)
+        if(inst0[31: 26] == 6'd22)
           begin
           end    
-        if(isnt0[31: 26] == 6'd24)
+        if(inst0[31: 26] == 6'd24)
           begin
           end        
-        if(isnt0[31: 26] == 6'd26)
+        if(inst0[31: 26] == 6'd26)
           begin
           end
-        if(isnt0[31: 26] == 6'd28)
+        if(inst0[31: 26] == 6'd28)
           begin
           end
-        if(isnt0[31: 26] == 6'd30)
+        if(inst0[31: 26] == 6'd30)
           begin
           end
-        if(isnt0[31: 26] == 6'd32)
+        if(inst0[31: 26] == 6'd32)
           begin
           end
-        if(isnt0[31: 26] == 6'd34)
+        if(inst0[31: 26] == 6'd34)
           begin
           end
-        if(isnt0[31: 26] == 6'd36)
+        if(inst0[31: 26] == 6'd36)
           begin
           end
-        if(isnt0[31: 26] == 6'd38)
+        if(inst0[31: 26] == 6'd38)
           begin
           end
-        if(isnt0[31: 26] == 6'd40)
+        if(inst0[31: 26] == 6'd40)
           begin
           end
-        if(isnt0[31: 26] == 6'd42)
+        if(inst0[31: 26] == 6'd42)
           begin
           end
-        if(isnt0[31: 26] == 6'd44)
+        if(inst0[31: 26] == 6'd44)
           begin
           end
-        if(isnt0[31: 26] == 6'd46)
+        if(inst0[31: 26] == 6'd46)
           begin
           end
-        if(isnt0[31: 26] == 6'd48)
+        if(inst0[31: 26] == 6'd48)
           begin
           end
-        if(isnt0[31: 26] == 6'd50)
+        if(inst0[31: 26] == 6'd50)
           begin
           end
         // odd pipe
-        if(isnt0[31: 26] == 6'd1)
+        if(inst0[31: 26] == 6'd1)
           begin
           end
-        if(isnt0[31: 26] == 6'd3)
+        if(inst0[31: 26] == 6'd3)
           begin
           end
-        if(isnt0[31: 26] == 6'd5)
+        if(inst0[31: 26] == 6'd5)
           begin
           end
-        if(isnt0[31: 26] == 6'd7)
+        if(inst0[31: 26] == 6'd7)
           begin
           end
-        if(isnt0[31: 26] == 6'd9)
+        if(inst0[31: 26] == 6'd9)
           begin
           end
-        if(isnt0[31: 26] == 6'd11)
+        if(inst0[31: 26] == 6'd11)
           begin
           end
-        if(isnt0[31: 26] == 6'd13)
+        if(inst0[31: 26] == 6'd13)
           begin
           end
-        if(isnt0[31: 26] == 6'd15)
+        if(inst0[31: 26] == 6'd15)
           begin
           end
-        if(isnt0[31: 26] == 6'd17)
+        if(inst0[31: 26] == 6'd17)
           begin
           end
-        if(isnt0[31: 26] == 6'd19)
+        if(inst0[31: 26] == 6'd19)
           begin
           end
-        if(isnt0[31: 26] == 6'd21)
+        if(inst0[31: 26] == 6'd21)
           begin
           end
-        if(isnt0[31: 26] == 6'd23)
+        if(inst0[31: 26] == 6'd23)
           begin
           end
-        if(isnt0[31: 26] == 6'd25)
+        if(inst0[31: 26] == 6'd25)
           begin
           end
-        if(isnt0[31: 26] == 6'd27)
+        if(inst0[31: 26] == 6'd27)
           begin
           end
-        if(isnt0[31: 26] == 6'd29)
+        if(inst0[31: 26] == 6'd29)
           begin
           end
                   
