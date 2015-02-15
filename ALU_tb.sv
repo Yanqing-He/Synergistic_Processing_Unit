@@ -1,6 +1,6 @@
 module ALU_tb();
   logic clk_fake;
-  logic [3: 0] opCode;
+  logic [5: 0] opCode;
   logic [7: 0] inA, inB;
   logic [7: 0] dataOut;
   
@@ -16,8 +16,8 @@ module ALU_tb();
   begin
     clk_fake = 0;
     opCode = 0;
-    inA = 0;
-    inB = 0;
+    inA = 8'd0;
+    inB = 8'd0;
   end
   
   always
@@ -27,11 +27,11 @@ module ALU_tb();
   
   initial
   begin
-    #5 opCode = 4'b0000;
-    inA = 12;
-    inB = 10;
-    #8 opCode = 4'b0001;
-    #8 opCode = 4'b0010;
-    #16 opCode = 4'b0001;
+    #4 opCode = 6'd63;
+    inA = 8'd12;
+    inB = 8'd10;
+    #8 opCode = 6'd4;
+    #8 opCode = 6'd20;
+    #16 opCode = 6'd4;
   end
 endmodule
