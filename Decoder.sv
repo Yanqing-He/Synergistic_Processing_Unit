@@ -1,4 +1,4 @@
-module Decoder(clk, reset, stallIn, instIn, stallOut, instOut, 
+module Decoder(clk, reset, stallIn, instIn, stallOut, inst0, inst1, tempInst,
 opOutEven, raEven, rbEven, rdEven, immeNumEven, immeSelEven,
 opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
 
@@ -7,18 +7,18 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
   input clk, reset, stallIn;
   input [instWidth * 2 - 1: 0] instIn;
   output logic stallOut;
-  output logic [instWidth * 2 - 1: 0] instOut;
+  //output logic [instWidth * 2 - 1: 0] instOut;
   
-  output logic [3: 0] opOutEven;
+  output logic [5: 0] opOutEven;
   output logic [addrWidth - 1: 0] raEven, rbEven, rdEven;
   output logic [9: 0] immeNumEven;
   output logic immeSelEven;
   
-  output logic [3: 0] opOutOdd;
+  output logic [5: 0] opOutOdd;
   output logic [addrWidth - 1: 0] raOdd, rbOdd, rdOdd;
   output logic [9: 0] immeNumOdd;
   
-  logic [instWidth - 1: 0] inst0, inst1, tempInst;
+  output logic [instWidth - 1: 0] inst0, inst1, tempInst;
   logic stall;
   logic [2: 0] stallCounter;
   
@@ -26,23 +26,24 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
   begin
     if(reset)
       begin
-        instOut <= 64'hFFFFFFFFFFFFFFFF; // decode currently unavailible
+        //instOut <= 64'hFFFFFFFFFFFFFFFF; // decode currently unavailible
         inst0 <= 32'hFFFFFFFF;
         inst1 <= 32'hFFFFFFFF;
+        tempInst <= 32'hFFFFFFFF;
         stall <= 0;
       end
     else
       begin
         if(~stall)
           begin
-            if(tempInst != 32'hFFFFFFFF)
+            if(tempInst == 32'hFFFFFFFF) // no inst from previous cycle left
               begin
                 if(0) // structual hazard detected
                   begin
             
                   end
-                else if((instIn[63: 58] % 2 == 0 && instIn[31: 26] == 0) || 
-                (instIn[63: 58] % 2 == 1 && instIn[31: 26] == 1)) // 2 even inst or 2 odd inst
+                else if((instIn[63: 58] % 2 == 0 && instIn[31: 26] % 2 == 0) || 
+                (instIn[63: 58] % 2 == 1 && instIn[31: 26] % 2 == 1)) // 2 even inst or 2 odd inst
                   begin
                     inst0 <= instIn[instWidth - 1: 0];
                     inst1 <= 32'hFFFFFFFF;
@@ -55,7 +56,7 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
                     inst1 <= instIn[instWidth * 2 - 1: instWidth];
                   end
               end
-            else
+            else // inst from previous cyvle
               begin
                 inst0 <= tempInst;
                 inst1 <= 32'hFFFFFFFF;
@@ -96,6 +97,7 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
             raEven <= inst0[13: 7];
             rbEven <= inst0[21: 8];
             immeNumEven <= 0;
+            immeSelEven <= 0;
           end
         if(inst0[31: 26] == 6'd6) // add half word immediate
           begin
@@ -112,6 +114,7 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
             raEven <= inst0[13: 7];
             rbEven <= inst0[21: 8];
             immeNumEven <= 0;
+            immeSelEven <= 0;
           end
         if(inst0[31: 26] == 6'd10) // add word immediate
           begin
@@ -139,6 +142,7 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
             raEven <= inst0[13: 7];
             rbEven <= inst0[21: 8];
             immeNumEven <= 0;
+            immeSelEven <= 0;
             stallCounter <= 1; // stall one cycle for multiplying
             stall <= 1;
           end    
