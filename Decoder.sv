@@ -1,6 +1,8 @@
-module Decoder(clk, reset, stallIn, instIn, stallOut, inst0, inst1, tempInst,
+module Decoder(clk, reset, stallIn, instIn, stallOut, 
+inst0, inst1, tempInst, // output for test
 opOutEven, raEven, rbEven, rdEven, immeNumEven, immeSelEven,
-opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
+opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd,
+ALU2ALUFwd, mem2ALUFwd);
 
   parameter addrWidth = 7, instWidth = 32;
   
@@ -18,7 +20,9 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
   output logic [addrWidth - 1: 0] raOdd, rbOdd, rdOdd;
   output logic [9: 0] immeNumOdd;
   
-  output logic [instWidth - 1: 0] inst0, inst1, tempInst;
+  output logic ALU2ALUFwd, mem2ALUFwd;
+  
+  output logic [instWidth - 1: 0] inst0, inst1, tempInst; // output for test
   logic stall;
   logic [2: 0] stallCounter;
   
@@ -95,7 +99,7 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
             opOutEven <= 6'd4;
             rdEven <= inst0[6: 0];
             raEven <= inst0[13: 7];
-            rbEven <= inst0[21: 8];
+            rbEven <= inst0[20: 14];
             immeNumEven <= 0;
             immeSelEven <= 0;
           end
@@ -112,7 +116,7 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
             opOutEven <= 6'd8;
             rdEven <= inst0[6: 0];
             raEven <= inst0[13: 7];
-            rbEven <= inst0[21: 8];
+            rbEven <= inst0[20: 14];
             immeNumEven <= 0;
             immeSelEven <= 0;
           end
@@ -140,7 +144,7 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
             opOutEven <= 6'd20;
             rdEven <= inst0[6: 0];
             raEven <= inst0[13: 7];
-            rbEven <= inst0[21: 8];
+            rbEven <= inst0[20: 14];
             immeNumEven <= 0;
             immeSelEven <= 0;
             stallCounter <= 1; // stall one cycle for multiplying
@@ -242,13 +246,53 @@ opOutOdd, raOdd, rbOdd, rdOdd, immeNumOdd);
     
   end
   
-  always_ff @(posedge clk) // even pipe data hazard and forward
-  begin
-    
-  end
+  logic [31: 0] evenInstReg, oddInstReg;
   
-  always_ff @(posedge clk) // odd pipe data hazard and forwad
+  always_ff @(posedge clk) 
   begin
-    
+    if(inst1 == 32'hFFFFFFFF) // reg current inst for analyzing data hazard in next cycle
+      begin
+        if(inst0[31: 26] % 2 == 0)
+          begin
+            evenInstReg <= inst0;
+            oddInstReg <= 32'hFFFFFFFF;
+          end
+        else
+          begin
+            oddInstReg <= inst0;
+            evenInstReg <= 32'hFFFFFFFF;
+          end
+      end
+    else
+      begin
+        if(inst0[31: 26] % 2 == 0)
+          begin
+            evenInstReg <= inst0;
+            oddInstReg <= inst1;
+          end
+        else
+          begin
+            evenInstReg <= inst1;
+            oddInstReg <= inst0;
+          end
+      end
+    if(inst0[31: 26] % 2 == 0 && inst0[20: 14] == evenInstReg[6: 0]) 
+    // both even and same reg, alu to alu forward
+      begin
+        ALU2ALUFwd <= 1;
+      end
+    else if(inst1[31: 26] % 2 == 0 && inst1[20: 14] == evenInstReg[6: 0]) // same as above
+      begin
+        ALU2ALUFwd <= 1;
+      end
+    else if(inst0[31: 26] % 2 == 0 && inst0[20: 14] == oddInstReg[6: 0]) 
+    // 1 even and 1 odd, op after load, mem to alu forward
+      begin
+        mem2ALUFwd <= 1;
+      end
+    else if(inst1[31: 26] % 2 == 0 && inst0[20: 14] == oddInstReg[6: 0]) // same as above
+      begin
+        mem2ALUFwd <= 1;
+      end
   end
 endmodule

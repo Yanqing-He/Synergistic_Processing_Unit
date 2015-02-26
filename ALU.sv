@@ -13,7 +13,38 @@ module ALU(clk_fake, opCode, inA, inB, dataOut, zeroOut);
   
   always_ff @(negedge clk_fake)
   begin
-    if(opCode == 6'd4) // add halfword
+    if(opCode == 6'd0) // Immediate Load Half Word
+      begin
+        dataOut[hwordWidth - 1: 0] <=
+                inB[hwordWidth- 1: 0];
+        dataOut[hwordWidth * 2 - 1: hwordWidth] <= 0;
+
+        dataOut[hwordWidth * 3 - 1: hwordWidth *  2] <=
+                inB[hwordWidth- 1: 0];
+        dataOut[hwordWidth * 4 - 1: hwordWidth *  3] <= 0;
+
+        dataOut[hwordWidth * 5 - 1: hwordWidth *  4] <=
+                inB[hwordWidth- 1: 0];
+        dataOut[hwordWidth * 6 - 1: hwordWidth *  5] <= 0;
+        
+        dataOut[hwordWidth * 7 - 1: hwordWidth *  6] <=
+                inB[hwordWidth- 1: 0];
+        dataOut[hwordWidth * 8 - 1: hwordWidth *  7] <= 0;
+      end
+      
+    else if(opCode == 6'd2) // Immediate Load Word
+      begin
+        dataOut[wordWidth - 1: 0] <=
+                inB[wordWidth- 1: 0];
+        dataOut[wordWidth * 2 - 1: wordWidth] <=
+                inB[wordWidth- 1: 0];
+        dataOut[wordWidth * 3 - 1: wordWidth * 2] <=
+                inB[wordWidth- 1: 0];
+        dataOut[wordWidth * 4 - 1: wordWidth * 3] <=
+                inB[wordWidth- 1: 0];
+      end
+      
+    else if(opCode == 6'd4) // add halfword
       begin
         dataOut[hwordWidth - 1: 0] <= 
                 inB[hwordWidth- 1: 0] + inA[hwordWidth - 1: 0];
@@ -32,6 +63,7 @@ module ALU(clk_fake, opCode, inA, inB, dataOut, zeroOut);
         dataOut[hwordWidth * 8 - 1: hwordWidth *  7] <= 
                 inB[hwordWidth * 8 - 1: hwordWidth *  7] + inA[hwordWidth * 8 - 1: hwordWidth *  7];
       end
+      
     else if(opCode == 6'd6) // add halfword immediate
       begin
         dataOut[hwordWidth - 1: 0] <= 
@@ -51,6 +83,7 @@ module ALU(clk_fake, opCode, inA, inB, dataOut, zeroOut);
         dataOut[hwordWidth * 8 - 1: hwordWidth *  7] <= 
                 inB[hwordWidth- 1: 0] + inA[hwordWidth * 8 - 1: hwordWidth *  7];
       end
+      
     else if(opCode == 6'd12) // sub halfword
       begin
         dataOut[hwordWidth - 1: 0] <= 
@@ -70,6 +103,7 @@ module ALU(clk_fake, opCode, inA, inB, dataOut, zeroOut);
         dataOut[hwordWidth * 8 - 1: hwordWidth *  7] <= 
                 inB[hwordWidth * 8 - 1: hwordWidth *  7] - inA[hwordWidth * 8 - 1: hwordWidth *  7];
       end
+      
     else if(opCode == 6'd20) // multiply halfword, 2 cycles
       begin
         dataOutReg1[wordWidth - 1: 0] <= 
@@ -85,6 +119,7 @@ module ALU(clk_fake, opCode, inA, inB, dataOut, zeroOut);
                 inB[hwordWidth * 7 - 1: hwordWidth *  6] * inA[hwordWidth * 7 - 1: hwordWidth *  6];
         dataOut <= dataOutReg1;
       end
+      
     else if(opCode == 6'd28) // and
       begin
         dataOut <= inA | inB;
